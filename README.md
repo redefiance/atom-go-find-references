@@ -8,3 +8,5 @@ go get -v github.com/redefiance/go-find-references
 ## Usage
 
 Use the command palette and search for `Go Find References: toggle` or use the default keybinding `shift-alt-r` to find references of the identifier under the cursor.
+
+![Screenshot](img/screenshot.png?raw=true)
