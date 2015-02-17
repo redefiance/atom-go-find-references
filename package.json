@@ -1,7 +1,7 @@
 {
   "name": "go-find-references",
   "main": "./lib/go-find-references",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Find references of golang identifiers in the project",
   "activationCommands": {
     "atom-workspace": "go-find-references:toggle"
