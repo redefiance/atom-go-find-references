@@ -16,6 +16,8 @@ class GoFindReferencesView extends View
     atom.commands.add 'atom-workspace', 'core:cancel', => @clear()
     atom.commands.add 'atom-text-editor', 'go-find-references:toggle', => @trigger()
 
+    @loader.hide()
+
     @panel = new ResizablePanel
       item: this
       position: 'bottom'
