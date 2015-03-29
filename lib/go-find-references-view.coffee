@@ -85,9 +85,8 @@ class GoFindReferencesView extends View
           column: split[2]
           text: lines.shift()
 
-    command = 'go-find-references'
+    command = atom.config.get 'go-find-references.path'
     args = ['-file', filepath, '-offset', offset, '-root', @root]
-    console.log args
     process = new BufferedProcess({command, args, stdout, stderr, exit})
 
     @loader.show()
