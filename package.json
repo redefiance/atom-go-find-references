@@ -1,17 +1,14 @@
 {
   "name": "go-find-references",
-  "main": "./lib/go-find-references",
   "version": "0.1.0",
+  "main": "./lib/main",
   "description": "Find references of golang identifiers in the project",
-  "activationCommands": {
-    "atom-workspace": "go-find-references:toggle"
-  },
   "repository": "https://github.com/redefiance/atom-go-find-references",
   "license": "MIT",
-  "engines": {
-    "atom": ">0.50.0"
-  },
   "dependencies": {
-    "atom-space-pen-views": "^2.0.3"
+    "atom-tree-view": "git://github.com/redefiance/atom-tree-view.git",
+    "atom-resizable-panel": "git://github.com/redefiance/atom-resizable-panel.git",
+    "space-pen": "latest",
+    "fs": "latest"
   }
 }
