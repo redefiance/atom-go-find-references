@@ -1,6 +1,6 @@
 {
   "name": "go-find-references",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "./lib/main",
   "description": "Find references of golang identifiers in the project",
   "repository": "https://github.com/redefiance/atom-go-find-references",
