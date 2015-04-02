@@ -26,7 +26,8 @@ class GoFindReferencesView extends View
     @pkgs[''] = @list
     @pkgs[''].files = {}
 
-    @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
+    # for testing
+    # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
