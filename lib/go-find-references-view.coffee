@@ -1,5 +1,5 @@
 {BufferedProcess} = require 'atom'
-{TreeView, TreeItem} = require 'atom-tree-view'
+{TreeView, TreeEntryView} = require 'atom-tree-view'
 {ResizablePanel} = require 'atom-resizable-panel'
 {View} = require 'space-pen'
 fs = require 'fs'
@@ -25,6 +25,8 @@ class GoFindReferencesView extends View
     @pkgs = {}
     @pkgs[''] = @list
     @pkgs[''].files = {}
+
+    @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
@@ -59,7 +61,8 @@ class GoFindReferencesView extends View
     @panel.height Math.min h, 250
 
   open: (filepath, offset, @root)->
-    # @refname = undefined
+    @loader.show()
+    @list.focus()
 
     exit = (code)=>
       @loader.hide()
@@ -72,9 +75,6 @@ class GoFindReferencesView extends View
     stdout = (output)=>
       for line in output.split '\n'
         lines.push line if line != ''
-      # if not @refname? and lines.length >= 1
-      #   @refname = lines[0]
-      #   lines.shift()
       while lines.length >= 2
         line = lines.shift()
         split = line.split ':'
@@ -91,32 +91,32 @@ class GoFindReferencesView extends View
     args = ['-file', filepath, '-offset', offset, '-root', @root]
     process = new BufferedProcess({command, args, stdout, stderr, exit})
 
-    @loader.show()
-
   showReference: ({pkg, file, line, column, text})->
     unless @pkgs[pkg]?
-      item = new TreeItem pkg, 'icon-file-directory'
-      item.files = {}
-      @list.addItem item
-      @pkgs[pkg] = item
+      entry = new TreeEntryView
+        text: pkg
+        icon: 'icon-file-directory'
+      entry.files = {}
+      @list.addEntry entry
+      @pkgs[pkg] = entry
 
     unless @pkgs[pkg].files[file]?
-      item = new TreeItem file, 'icon-file-text'
-      item.lines = {}
-      @pkgs[pkg].addItem item
-      @pkgs[pkg].files[file] = item
+      entry = new TreeEntryView
+        text: file
+        icon: 'icon-file-text'
+      entry.lines = {}
+      @pkgs[pkg].addEntry entry
+      @pkgs[pkg].files[file] = entry
 
     unless @pkgs[pkg].files[file].lines[line]?
-      item = new TreeItem line+': ' + text
-      item.confirm = =>
-        atom.workspace.open @root+'/'+pkg+'/'+file,
-          initialLine: line-1
-          initialColumn: column-1
-      @pkgs[pkg].files[file].addItem item
-      @pkgs[pkg].files[file].lines[line] = item
+      entry = new TreeEntryView
+        text: line+': ' + text
+        confirm: =>
+          (atom.workspace.open @root+'/'+pkg+'/'+file,
+            initialLine: line-1
+            initialColumn: column-1
+          ).done => @list.focus()
+      @pkgs[pkg].files[file].addEntry entry
+      @pkgs[pkg].files[file].lines[line] = entry
 
-
-    unless @list.find('.selected')[0]
-      @list.selectEntry @list.find('.entry').first()[0]
-      @list.focus()
     @resize()
