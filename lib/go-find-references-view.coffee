@@ -48,8 +48,8 @@ class GoFindReferencesView extends View
       for file of @pkgs[pkg].files
         for line of @pkgs[pkg].files[file].lines
           @pkgs[pkg].files[file].lines[line].remove()
-        @pkgs[pkg].files[file].destroy()
-      @pkgs[pkg].destroy?()
+        @pkgs[pkg].files[file].remove()
+      @pkgs[pkg].remove?()
 
     @pkgs = {}
     @pkgs[''] = @list
