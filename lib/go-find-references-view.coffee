@@ -28,6 +28,7 @@ class GoFindReferencesView extends View
 
     # for testing
     # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
+    # @open '/home/dev/go/go-outline/outline/decl.go', 505, '/home/dev/go/go-outline/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
@@ -49,7 +50,7 @@ class GoFindReferencesView extends View
         for line of @pkgs[pkg].files[file].lines
           @pkgs[pkg].files[file].lines[line].remove()
         @pkgs[pkg].files[file].remove()
-      @pkgs[pkg].remove?()
+      @pkgs[pkg].remove?() unless pkg is ''
 
     @pkgs = {}
     @pkgs[''] = @list
@@ -59,7 +60,6 @@ class GoFindReferencesView extends View
   resize: ->
     h = @list.height()
     h += @loader.height() if @loader.isVisible()
-    h = Math.max h, 50
     @panel.height Math.min h, 250
 
   open: (filepath, offset, @root)->
