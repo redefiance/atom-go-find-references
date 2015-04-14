@@ -59,6 +59,7 @@ class GoFindReferencesView extends View
   resize: ->
     h = @list.height()
     h += @loader.height() if @loader.isVisible()
+    h = Math.max h, 50
     @panel.height Math.min h, 250
 
   open: (filepath, offset, @root)->
@@ -66,6 +67,7 @@ class GoFindReferencesView extends View
     @list.focus()
 
     exit = (code)=>
+      @panel.height @panel.height() - @loader.height()
       @loader.hide()
       @resize()
 
