@@ -94,25 +94,29 @@ class GoFindReferencesView extends View
 
   showReference: ({pkg, file, line, column, text})->
     unless @pkgs[pkg]?
-      entry = new TreeItem pkg, 'icon-file-directory'
-      entry.files = {}
-      @list.addItem entry
-      @pkgs[pkg] = entry
+      item = new TreeItem pkg, 'icon-file-directory'
+      item.expand()
+      item.files = {}
+      @list.addItem item
+      @pkgs[pkg] = item
 
     unless @pkgs[pkg].files[file]?
-      entry = new TreeItem file, 'icon-file-text'
-      entry.lines = {}
-      @pkgs[pkg].addItem entry
-      @pkgs[pkg].files[file] = entry
+      item = new TreeItem file, 'icon-file-text'
+      item.expand()
+      item.lines = {}
+      @pkgs[pkg].addItem item
+      @pkgs[pkg].files[file] = item
+      @list.select item if file == @filepath
 
     unless @pkgs[pkg].files[file].lines[line]?
-      entry = new TreeItem line+': ' + text
-      entry.onConfirm =>
+      item = new TreeItem line+': ' + text
+      item.expand()
+      item.onConfirm =>
         (atom.workspace.open @root+'/'+pkg+'/'+file,
           initialLine: line-1
           initialColumn: column-1
         ).done => @list.focus()
-      @pkgs[pkg].files[file].addItem entry
-      @pkgs[pkg].files[file].lines[line] = entry
+      @pkgs[pkg].files[file].addItem item
+      @pkgs[pkg].files[file].lines[line] = item
 
     @resize()
