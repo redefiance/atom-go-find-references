@@ -1,5 +1,5 @@
 {BufferedProcess} = require 'atom'
-{TreeView, TreeEntryView} = require 'atom-tree-view'
+{TreeView, TreeItem} = require 'atom-tree-view'
 {ResizablePanel} = require 'atom-resizable-panel'
 {View} = require 'space-pen'
 fs = require 'fs'
@@ -27,7 +27,7 @@ class GoFindReferencesView extends View
     @pkgs[''].files = {}
 
     # for testing
-    # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
+    @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
@@ -94,30 +94,25 @@ class GoFindReferencesView extends View
 
   showReference: ({pkg, file, line, column, text})->
     unless @pkgs[pkg]?
-      entry = new TreeEntryView
-        text: pkg
-        icon: 'icon-file-directory'
+      entry = new TreeItem pkg, 'icon-file-directory'
       entry.files = {}
-      @list.addEntry entry
+      @list.addItem entry
       @pkgs[pkg] = entry
 
     unless @pkgs[pkg].files[file]?
-      entry = new TreeEntryView
-        text: file
-        icon: 'icon-file-text'
+      entry = new TreeItem file, 'icon-file-text'
       entry.lines = {}
-      @pkgs[pkg].addEntry entry
+      @pkgs[pkg].addItem entry
       @pkgs[pkg].files[file] = entry
 
     unless @pkgs[pkg].files[file].lines[line]?
-      entry = new TreeEntryView
-        text: line+': ' + text
-        confirm: =>
-          (atom.workspace.open @root+'/'+pkg+'/'+file,
-            initialLine: line-1
-            initialColumn: column-1
-          ).done => @list.focus()
-      @pkgs[pkg].files[file].addEntry entry
+      entry = new TreeItem line+': ' + text
+      entry.onConfirm =>
+        (atom.workspace.open @root+'/'+pkg+'/'+file,
+          initialLine: line-1
+          initialColumn: column-1
+        ).done => @list.focus()
+      @pkgs[pkg].files[file].addItem entry
       @pkgs[pkg].files[file].lines[line] = entry
 
     @resize()
