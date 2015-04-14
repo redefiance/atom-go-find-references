@@ -96,7 +96,7 @@ class GoFindReferencesView extends View
     unless @pkgs[pkg]?
       entry = new TreeItem pkg, 'icon-file-directory'
       entry.files = {}
-      @list.addItemu entry
+      @list.addItem entry
       @pkgs[pkg] = entry
 
     unless @pkgs[pkg].files[file]?
