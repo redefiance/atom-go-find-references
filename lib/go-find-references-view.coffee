@@ -28,7 +28,6 @@ class GoFindReferencesView extends View
 
     # for testing
     # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
-    # @open '/home/dev/go/go-outline/outline/decl.go', 505, '/home/dev/go/go-outline/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
