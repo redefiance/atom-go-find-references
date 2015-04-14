@@ -27,7 +27,7 @@ class GoFindReferencesView extends View
     @pkgs[''].files = {}
 
     # for testing
-    @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
+    # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
@@ -96,7 +96,7 @@ class GoFindReferencesView extends View
     unless @pkgs[pkg]?
       entry = new TreeItem pkg, 'icon-file-directory'
       entry.files = {}
-      @list.addItem entry
+      @list.addItemu entry
       @pkgs[pkg] = entry
 
     unless @pkgs[pkg].files[file]?
