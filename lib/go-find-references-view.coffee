@@ -39,6 +39,10 @@ class GoFindReferencesView extends View
     # testoffset = 300
     # @open testfile, testoffset, testroot
 
+  destroy: ->
+    @panel.remove()
+    @remove()
+
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
     buffer.save() if buffer.isModified()
