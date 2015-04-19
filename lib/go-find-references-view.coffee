@@ -71,6 +71,7 @@ class GoFindReferencesView extends View
     @append (@list = new TreeView)
     @list.focus()
     @loader.show()
+    @resize()
 
     command = atom.config.get 'go-find-references.path'
     args = ['-file', filepath, '-offset', offset, '-root', root]
