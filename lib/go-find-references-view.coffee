@@ -1,8 +1,19 @@
 {BufferedProcess} = require 'atom'
 {TreeView, TreeItem} = require 'atom-tree-view'
 {ResizablePanel} = require 'atom-resizable-panel'
-{View} = require 'space-pen'
+{$, View} = require 'space-pen'
 fs = require 'fs'
+
+class LineItem extends TreeItem
+  initialize: (filepath, line, column, text)->
+    super line, $("<span><b>#{line}:</b> #{text}</span>")
+    open = (activate)->
+      atom.workspace.open filepath,
+        initialLine:   line-1
+        initialColumn: column-1
+        activatePane:  activate
+    @onSelect  -> open false
+    @onConfirm -> open true
 
 module.exports =
 class GoFindReferencesView extends View
@@ -10,24 +21,23 @@ class GoFindReferencesView extends View
     @div outlet: 'loader', class: 'inline-block', =>
       @span class: 'loading loading-spinner-tiny inline-block'
       @span 'running go-find-references...'
-    @subview 'list', new TreeView
 
   initialize: ->
-    atom.commands.add 'atom-workspace', 'core:cancel', => @clear()
-    atom.commands.add 'atom-text-editor', 'go-find-references:toggle', => @trigger()
-
     @loader.hide()
-
     @panel = new ResizablePanel
       item: this
       position: 'bottom'
 
-    @pkgs = {}
-    @pkgs[''] = @list
-    @pkgs[''].files = {}
+    atom.commands.add 'atom-workspace', 'core:cancel', =>
+      @clear()
+    atom.commands.add 'atom-text-editor', 'go-find-references:toggle', =>
+      @trigger()
 
     # for testing
-    # @open '/usr/lib/go/src/pkg/errors/errors.go', 300, '/usr/lib/go/src/pkg/'
+    # testroot = '/usr/lib/go/src/pkg/'
+    # testfile = '/usr/lib/go/src/pkg/errors/errors.go'
+    # testoffset = 300
+    # @open testfile, testoffset, testroot
 
   trigger: ->
     buffer = atom.workspace.getActiveTextEditor()
@@ -44,80 +54,46 @@ class GoFindReferencesView extends View
       @open filepath, offset, root
 
   clear: ->
-    for pkg of @pkgs
-      for file of @pkgs[pkg].files
-        for line of @pkgs[pkg].files[file].lines
-          @pkgs[pkg].files[file].lines[line].remove()
-        @pkgs[pkg].files[file].remove()
-      @pkgs[pkg].remove?() unless pkg is ''
-
-    @pkgs = {}
-    @pkgs[''] = @list
-    @pkgs[''].files = {}
+    @list?.remove()
     @resize()
 
   resize: ->
-    h = @list.height()
+    h = @list?.height() or 0
     h += @loader.height() if @loader.isVisible()
     @panel.height Math.min h, 250
 
-  open: (filepath, offset, @root)->
-    @loader.show()
+  open: (filepath, offset, root)->
+    @clear()
+    @append (@list = new TreeView)
     @list.focus()
+    @loader.show()
 
-    exit = (code)=>
-      @panel.height @panel.height() - @loader.height()
-      @loader.hide()
-      @resize()
-
-    stderr = (output)=>
-      atom.notifications.addError output
+    command = atom.config.get 'go-find-references.path'
+    args = ['-file', filepath, '-offset', offset, '-root', root]
 
     lines = []
     stdout = (output)=>
       for line in output.split '\n'
         lines.push line if line != ''
       while lines.length >= 2
-        line = lines.shift()
-        split = line.split ':'
-        filename = split[0].substring @root.length
-        cut = filename.lastIndexOf '/'
-        @showReference
-          pkg: filename.substring(0, cut)
-          file: filename.substring(cut+1)
-          line: split[1]
-          column: split[2]
-          text: lines.shift()
+        [filepath, line, column] = lines.shift().split ':'
+        text = lines.shift()
 
-    command = atom.config.get 'go-find-references.path'
-    args = ['-file', filepath, '-offset', offset, '-root', @root]
-    process = new BufferedProcess({command, args, stdout, stderr, exit})
+        path = filepath.substring(root.length).split '/'
+        path.shift() if path[0] is ''
+        path.push line
 
-  showReference: ({pkg, file, line, column, text})->
-    unless @pkgs[pkg]?
-      item = new TreeItem pkg, 'icon-file-directory'
-      item.expand()
-      item.files = {}
-      @list.addItem item
-      @pkgs[pkg] = item
-
-    unless @pkgs[pkg].files[file]?
-      item = new TreeItem file, 'icon-file-text'
-      item.expand()
-      item.lines = {}
-      @pkgs[pkg].addItem item
-      @pkgs[pkg].files[file] = item
-      @list.select item if file == @filepath
-
-    unless @pkgs[pkg].files[file].lines[line]?
-      item = new TreeItem line+': ' + text
-      item.expand()
-      item.onConfirm =>
-        (atom.workspace.open @root+'/'+pkg+'/'+file,
-          initialLine: line-1
-          initialColumn: column-1
-        ).done => @list.focus()
-      @pkgs[pkg].files[file].addItem item
-      @pkgs[pkg].files[file].lines[line] = item
-
-    @resize()
+        @list.createItems path, (i, str)->
+          item = switch i
+            when path.length-1 then new LineItem filepath, line, column, text
+            when path.length-2 then new TreeItem str, 'icon-file-text'
+            else new TreeItem str, 'icon-file-directory'
+          item.expand()
+          item
+    exit = (code)=>
+      @panel.height @panel.height() - @loader.height()
+      @loader.hide()
+      @resize()
+    stderr = (output)->
+      atom.notifications.addError output
+    new BufferedProcess({command, args, stdout, stderr, exit})
