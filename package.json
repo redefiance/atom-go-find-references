@@ -6,7 +6,7 @@
   "repository": "https://github.com/redefiance/atom-go-find-references",
   "license": "MIT",
   "dependencies": {
-    "atom-tree-view": "git://github.com/redefiance/atom-tree-view.git#4b04997f711b5cd7b5e873f3b041aca8aa3664ef",
+    "atom-tree-view": "git://github.com/redefiance/atom-tree-view.git#72815253d0ace043cb519e313da15e6dc836ca07",
     "atom-resizable-panel": "git://github.com/redefiance/atom-resizable-panel.git",
     "space-pen": "latest",
     "fs": "latest"
