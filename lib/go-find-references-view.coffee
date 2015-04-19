@@ -4,6 +4,8 @@
 {$, View} = require 'space-pen'
 fs = require 'fs'
 
+currentEditor = null
+
 class LineItem extends TreeItem
   initialize: (filepath, line, column, text)->
     super line, $("<span><b>#{line}:</b> #{text}</span>")
@@ -12,8 +14,15 @@ class LineItem extends TreeItem
         initialLine:   line-1
         initialColumn: column-1
         activatePane:  activate
-    @onSelect  -> open false
-    @onConfirm -> open true
+    @onConfirm  ->
+      open true
+      currentEditor = null
+      console.log "confirmed"
+    @onSelect ->
+      (open false).done (e)=>
+        if currentEditor? and currentEditor != e
+          currentEditor.destroy()
+        currentEditor = e
 
 module.exports =
 class GoFindReferencesView extends View
