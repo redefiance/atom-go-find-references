@@ -62,7 +62,7 @@ class GoFindReferencesView extends View
     root = fs.realpathSync atom.project.getPaths()[0]
     root += '/' unless root.endsWith '/'
 
-    if '.go' == filepath.substring filepath.length - 3
+    if filepath && '.go' == filepath.substring filepath.length - 3
       @clear()
       @open filepath, offset, root
 
